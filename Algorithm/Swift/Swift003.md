@@ -10,7 +10,7 @@
 
 ```swift 
 let line = readLine() ?? ""
-let lineArr = line.characters.split{$0 == " "}.map(String.init)
+let lineArr = line.split{$0 == " "}
 let a = Int(lineArr[0]) ?? 0
 let b = Int(lineArr[1]) ?? 0
 print(a-b)

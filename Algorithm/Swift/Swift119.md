@@ -1,4 +1,4 @@
-# [Swift 문제풀이 119] 괄호 없는 사칙연산
+# [Swift 문제풀이 119] 종이접기
 
 [문제 링크](https://www.acmicpc.net/problem/16504)
 

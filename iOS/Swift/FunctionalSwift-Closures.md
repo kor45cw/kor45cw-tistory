@@ -81,11 +81,18 @@ let a: (Int) -> Int = { $0 * $0 }
 ```
 
 ## Trailing Closure:
-If you need to pass a closure expression to a function as the function’s last argument and closure expression is too long, it can be written as trailing closure. A trailing closure is written after the function call’s parentheses (), even though it is still an argument to the function. When you use the trailing closure syntax, you don’t write the argument label for the closure as part of the function call.
-
-If closure is the last parameter to a method then swift allows you to write like this 🖕
+- 함수의 마지막 인자로 긴 클로져 표현을 전달하게 되면 trailing closure로 사용 가능하다.
+- trailing closure는 함수 호출의 () 뒤에 작성하게 된다.
+- trailing closure 구문을 사용하는 경우 함수 호출에 대한 label을 작성하지 말아라.
 
 ```swift
+func make(input: Int, completion: () -> Void) {
+	completion()
+}
+
+make(input: 1) {
+	print("A")
+}
 
 let digitsList = [1, 2, 3, 4, 5]
 
@@ -94,11 +101,13 @@ print(sum)
 // prints 15
 ```
 
-The use of trailing closure syntax neatly encapsulates the closure’s functionality immediately after the function that closure supports, without needing to wrap the entire closure within the reduce(_:) method’s outer parentheses.
+- closure가 메서드에 대한 마지막 매개 변수인 경우 빠른 속도로 이렇게 쓸 수 있음 
 
 ##Capturing Values:
-A closure can capture constants and variables from the surrounding context in which it is defined. The closure can then refer to and modify the values of those constants and variables from within its body, even if the original scope that defined the constants and variables no longer exists.
-In Swift, the simplest form of a closure that can capture values is a nested function, written within the body of another function. A nested function can capture any of its outer function’s arguments and can also capture any constants and variables defined within the outer function.
+- 클로져는 그것이 정의된 주변 문맥으로부터 변수와 상수를 capture할 수 있다.
+	- 상수와 변수를 정의한 원래 범위가 더이상 존재하지 않더라도 클로져는 내부에서 상수와 변수의 값을 참조하고 수정할 수 있다.
+- 스위프트에서 값을 capture할 수 있는 가장 단순한 형태의 클로져는 다른 함수의 내부에 쓰여진 nested 함수이다.
+- nested 함수는 외부 함수의 인수를 capture할 수 있으며 외부 함수 내에 정의된 상수 및 변수를 caputre 할 수 있다.
 
 ```swift
 func makeIncrementer(forIncrement amount: Int) -> () -> Int {
@@ -111,10 +120,11 @@ func makeIncrementer(forIncrement amount: Int) -> () -> Int {
 }
 ```
 
-
-This makeIncrementer function accepts one argument i.e. Int as input and returns a function type i.e. () -> Int. This means that it returns a function, rather than a simple value. The function it returns has no parameters, and returns an Int value each time it is called.
-Here amount is argument, runningTotal is declared as variable and initialized with 0. Nested function incrementer captures amount and runningTotal from surrounding context.
-Let’s see makeIncrementer in action:
+- `makeIncrementer` 함수는 하나의 인자를 받아들입니다.
+	- 입력은 Int형 이고 함수타입 () -> Int 를 반환합니다.
+	- 이것은 단순히 값이 아니라 기능을 반환한다는 것을 의미한다.
+	- 반환하는 함수에는 파라미터가 없으며 호출될 때마다 Int 값을 반환한다.
+- nested function 인 incrementer에서 runningTotal의 값을 주변 문맥에서 capture 한다.
 
 ```swift
 let incrementByTen = makeIncrementer(forIncrement: 10)
@@ -146,11 +156,11 @@ class CaptureList: NSObject {
 CaptureList()
 
 ```
+> 참고: 스위프트는 최적화에 의해서 클로져가 만들어진 후에 mutated 되지 않는다면, 그리고 그 값이 클로져에 의해 mutated 되지 않는다면, 그 값 대신 값의 사본을 capture 하고 저장할 수 있다.
+> 또한 스위프트는 더 이상 필요하지 않을 때 변수 처리에 관한 모든 메모리 관리를 다룬다.
 
-> Note: As an optimization, Swift may instead capture and store a copy of a value if that value is not mutated by a closure, and if the value is not mutated after the closure is created.
-Swift also handles all memory management involved in disposing of variables when they are no longer needed.
+- 함수 인수에서 긴 클로져를 제거하려면 typealias를 사용하십시오
 
-To get rid of long closure expression in function argument you can use typealias.
 
 ```swift
 //: Playground - Closures
@@ -178,65 +188,75 @@ CaptureList()
 ```
 
 ## Non-escaping Closures:
-Closure parameters were escaping by default before Swift 3. A closure wouldn’t escape the function body if closure parameters are marked as non-escaping
-In Swift 3 it’s been reversed. When you are passing a closure as the function argument, the closure gets execute with the function’s body and returns the compiler back. As the execution ends, the passed closure goes out of scope and have no more existence in memory.
+- 클로져 파라미터들은 Swift3 이전에 default로 escaping 되었다.
+- 클로져의 매개변수가 non-escaping으로 표현된 경우, 클로져가 function의 body를 빠져나오지 못한다.
+- 함수의 인수로 클로져를 통과하면, 클로져는 함수의 body로 실행되며 컴파일러를 반환한다.(?)
+- 실행이 종료되면, 통과된 클로져는 범위를 벗어나 더이상 memory에 존재하지 않게 된다.
 
-## The Least You Need to Know
->Closure parameters are non-escaping by default, if you wanna escape the closure execution, you have to use @escaping with the closure parameters.
 
-Lifecycle of the non-escaping closure:
+## 최소한 알아야하는 것
+> 클로져 매개변수는 기본적으로 non-escaping이다, 클로져 실행에서 벗어나려면 @escaping을 사용해야한다.
 
- 1. Pass the closure as a function argument, during the function call.
- 2. Do some work in function and then execute the closure.
- 3. Function returns.
+- 생명주기 of non-escaping closure
+	1. 함수 호출 중에 함수의 인수로 클로져를 통과시킨다.
+	2. 함수안의 작업을 하고 난 뒤에 클로져를 실행한다.
+	3. function returns
 
-Due to better memory management and optimizations, Swift has changed all closures to be non-escaping by default. CaptureList.swift is an example of non-escaping closure.
-Note: @non-escaping annotation applies only to function types
+- 더 나은 메모리 관리를 위해 스위프트는 모든 클로져를 기본적으로 non-escaping으로 변경했다. 위의 CaptureList는 non-escaping 클로져의 예시이다.
 
 ## Escaping Closures:
-A closure is said to escape a function when the closure is passed as an argument to the function, but is called after the function returns. Marking a closure with @escaping means you have to refer to self explicitly within the closure.
+- 클로져는 클로져가 함수의 인수로 전달될 때 함수를 탈출하는 것으로 알려져 있지만, 함수가 return 된 후에 클로져가 호출된다.
+- @escaping으로 클로져를 마킹 하는것은 클로져 내에서 명시적으로 자신을 언급해야한다는 것을 의미한다.
 
-Lifecycle of the @escaping closure: 
+- @escaping 클로져의 수명 주기: 
+	1. 함수 호출 중 함수 인수로 클로져를 통과시킨다. 
+	2. 함수안에서 추가 작업을 수행하십시오. 
+	3. 함수가 클로져를 비동기적 실행 또는 저장한다.
+	4. 함수 반환.
 
-1. Pass the closure as function argument, during the function call. 
-2. Do some additional work in function. 
-3. Function execute the closure asynchronously or stored. 
-4. Function returns.
-
-Let’s see where closures are by default escaping:
-
-- Variables of function type are implicit escaping
-- typealiases are implicit escaping
-- Optional closures are implicit escaping
+- 기본적으로 클로져가 어디로 탈출(escaping)하는지 확인:
+	- 함수타입의 변수는 암시적으로 탈출임
+	- typealiases는 탈출을 암시함
+	- Optional closures는 암시적으로 탈출할 수 있음
 
 ### Common Error:
-Assigning non-escaping closure to escaping closure. There are 2 ways to fix this:
+non-escaping 클로져를 escaping 클로져로 할당되는 문제의 해결책은 두가지 방법이 있다.
+
+- closure를 escaping으로 표시
+- 클로져를 optional로 설정하여 @noescape 동작을 유지
 
 - Mark closure as escaping
 - Or keep the default @noescape behavior by making the closure optional
 
+- 폐쇄를 탈출구로 표시
+- 또는 폐쇄를 선택사항으로 설정하여 @noescape 기본 동작 유지
+
 
 ## Autoclosures:
-Swift’s @autoclosure attribute enables you to define an argument that automatically gets wrapped in a closure. It doesn’t take any arguments, and when it’s called, it returns the value of the expression that’s wrapped inside of it. This syntactic convenience lets you omit braces around a function’s parameter by writing a normal expression instead of an explicit closure.
-For example, the assert(condition:message:file:line:)function takes an autoclosure for its condition and message parameters; its conditionparameter is evaluated only in debug builds and its message parameter is evaluated only if condition is false.
+- @autoclosure 속성은 클로져로 자동으로 wrapped되는 인수를 정의 할 수 있게 한다.
+- 인자를 갖지 않고, 클로져가 호출될 때 감싸고 있던 값을 되돌려준다.
+- `assert(condition:message:file:line:)` 함수는 autoclosure를 갖는다.
+	- `condition`변수는 디버그에서만 eval 되며, condition이 false인 경우에 한하여 `message` 매개변수가 eval 된다.
+
 
 ```swift
 func assert(_ expression: @autoclosure () -> Bool,
             _ message: @autoclosure () -> String) {}
 ```
 
-To use `@autoclosure` with `@escaping` attribute syntax is:
+- `@autoclosure`는 `@escaping`와 함께 사용가능하다.
 
 ```swift
 @autoclosure @escaping () -> Bool
 ```
 
-## Closures vs Blocks:
-“Swift closures and Objective-C blocks are compatible so you can pass Swift closures to Objective-C methods that expect blocks. Swift closures and functions have the same type so you can even pass the name of a Swift function. Closures have similar capture semantics as blocks but differ in one key way: Variables are mutable rather than copied. In other words, the behavior of __block in Objective-C is the default behavior for variables in Swift.”
-
 ##Closures vs Delegates:
-The solution depends on the problem. Moreover, Apple is shifting its focus to Callback pattern. UIAlertAction is an example of this.
+- 해결책은 문제에 달려있다.
+- 더욱이, 애플은 callback pattern 으로 초점을 맞추고 있다.
+	- UIAlertAction은 이것의 한 예가 될것이다.
 
 
 ## Conclusion:
-Sometimes we use concepts but are not aware of terminology. This post will be useful for both novice and experienced developers. I used @escaping, @non-escaping and @autoclosure many times but was not aware of actual concept. I thought to dig into it and share with everyone.
+- 우리는 개념을 사용하지만 용어를 알지 못하는 경우가 많다.
+- 나는 @escaping, @non-escaping, @autoclosure를 여러 번 사용했지만 실제 개념을 알지 못했다.
+- 이 포스팅은 초보자와 숙련된 개발자들 모두에게 유용할 것이다.

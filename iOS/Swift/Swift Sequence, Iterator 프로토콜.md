@@ -1,6 +1,6 @@
 # Swift Sequence, Iterator 프로토콜
 
-##Sequence #
+##Sequence
 
 - Sequence 프로토콜은 Array, Dictionary, Set과 같은 Collection 타입의 기반이 되는 프로토콜로, 값을 iterate(반복) 할 수 있는 동일한 타입의 일련의 값이다.
 - Sequence를 순회하는 가장 일반적인 방법은 for loop를 통해서 사용 할 수 있다.
